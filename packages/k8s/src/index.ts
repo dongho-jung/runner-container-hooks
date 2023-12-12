@@ -24,6 +24,10 @@ async function run(): Promise<void> {
       )
     }
 
+    core.debug(`input: ${JSON.stringify(input)}`)
+    core.debug(`args: ${JSON.stringify(args)}`)
+    core.debug(`command: ${JSON.stringify(command)}`)
+
     let exitCode = 0
     switch (command) {
       case Command.PrepareJob:

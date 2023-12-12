@@ -20,6 +20,11 @@ export async function runScriptStep(
     environmentVariables
   )
   core.debug(`containerPath=${containerPath};runnerPath=${runnerPath}`)
+
+  // print files under /home/runner/_work/_temp/
+  const files = fs.readdirSync('/home/runner/_work/_temp/')
+  core.debug(`files under /home/runner/_work/_temp/: ${files}`)
+
   args.entryPoint = 'sh'
   args.entryPointArgs = ['-ex', containerPath]
   try {
