@@ -164,6 +164,8 @@ export async function createJob(
   job.spec.template.spec.containers = [container]
   job.spec.template.spec.restartPolicy = 'Never'
 
+  core.debug(`useKubeScheduler=${useKubeScheduler()}`)
+  
   if (!useKubeScheduler()) {
     job.spec.template.spec.nodeName = await getCurrentNodeName()
 
