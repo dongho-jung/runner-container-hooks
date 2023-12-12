@@ -25,8 +25,8 @@ export async function runScriptStep(
   const files = fs.readdirSync('/home/runner/_work/_temp/')
   core.debug(`files under /home/runner/_work/_temp/: ${files}`)
 
-  args.entryPoint = 'ls'
-  args.entryPointArgs = ['-alh', '/home/runner/_work/_temp/']
+  args.entryPoint = 'sh'
+  args.entryPointArgs = ['-c', 'ls -alh /home/runner/_work/_temp/']
   try {
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
@@ -39,8 +39,8 @@ export async function runScriptStep(
     fs.rmSync(runnerPath)
   }
 
-  args.entryPoint = 'ls'
-  args.entryPointArgs = ['-alh', '/__w/_temp/']
+  args.entryPoint = 'sh'
+  args.entryPointArgs = ['-c', 'ls -alh /__w/_temp/']
   try {
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
