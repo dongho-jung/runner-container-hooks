@@ -21,7 +21,7 @@ export async function runScriptStep(
   )
   core.debug(`containerPath=${containerPath};runnerPath=${runnerPath}`)
   args.entryPoint = 'sh'
-  args.entryPointArgs = ['-e', containerPath]
+  args.entryPointArgs = ['-ex', containerPath]
   try {
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
@@ -29,6 +29,7 @@ export async function runScriptStep(
       JOB_CONTAINER_NAME
     )
   } catch (err) {
+    await new Promise(f => setTimeout(f, 300))
     throw new Error(`failed to run script step: ${err}`)
   } finally {
     fs.rmSync(runnerPath)
