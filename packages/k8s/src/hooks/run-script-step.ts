@@ -28,13 +28,14 @@ export async function runScriptStep(
   args.entryPoint = 'sh'
   args.entryPointArgs = ['-ex', containerPath]
   try {
+    await new Promise(f => setTimeout(f, 60000))
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
       state.jobPod,
       JOB_CONTAINER_NAME
     )
   } catch (err) {
-    await new Promise(f => setTimeout(f, 300))
+    await new Promise(f => setTimeout(f, 60000))
     throw new Error(`failed to run script step: ${err}`)
   } finally {
     fs.rmSync(runnerPath)
