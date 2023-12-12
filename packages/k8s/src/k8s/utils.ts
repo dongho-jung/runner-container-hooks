@@ -146,15 +146,12 @@ exec ${environmentPrefix} ${entryPoint} ${
     entryPointArgs?.length ? entryPointArgs.join(' ') : ''
   }
 `
-  if (!fs.existsSync(process.env.RUNNER_TEMP as string)) {
-    fs.mkdirSync(process.env.RUNNER_TEMP as string)
-  }
   const filename = `${uuidv4()}.sh`
   const entryPointPath = `${process.env.RUNNER_TEMP}/${filename}`
   fs.writeFileSync(entryPointPath, content)
   core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
-    containerPath: `${useKubeScheduler() ? '/home/runner/_work' : '/__w'}/_temp/${filename}`,
+    containerPath: (useKubeScheduler() ? process.env.RUNNER_TEMP : '/__w/temp') + `/${filename}`,
     runnerPath: entryPointPath
   }
 }

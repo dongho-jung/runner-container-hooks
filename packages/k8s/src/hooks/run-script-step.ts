@@ -4,6 +4,7 @@ import { RunScriptStepArgs } from 'hooklib'
 import { execPodStep } from '../k8s'
 import { writeEntryPointScript } from '../k8s/utils'
 import { JOB_CONTAINER_NAME } from './constants'
+import * as core from '@actions/core'
 
 export async function runScriptStep(
   args: RunScriptStepArgs,
@@ -18,7 +19,7 @@ export async function runScriptStep(
     args.prependPath,
     environmentVariables
   )
-
+  core.debug(`containerPath=${containerPath};runnerPath=${runnerPath}`)
   args.entryPoint = 'sh'
   args.entryPointArgs = ['-e', containerPath]
   try {
