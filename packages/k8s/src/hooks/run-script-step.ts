@@ -25,6 +25,34 @@ export async function runScriptStep(
   const files = fs.readdirSync('/home/runner/_work/_temp/')
   core.debug(`files under /home/runner/_work/_temp/: ${files}`)
 
+  args.entryPoint = 'ls'
+  args.entryPointArgs = ['-alh', '/home/runner/_work/_temp/']
+  try {
+    await execPodStep(
+      [args.entryPoint, ...args.entryPointArgs],
+      state.jobPod,
+      JOB_CONTAINER_NAME
+    )
+  } catch (err) {
+    throw new Error(`failed ls 1: ${err}`)
+  } finally {
+    fs.rmSync(runnerPath)
+  }
+
+  args.entryPoint = 'ls'
+  args.entryPointArgs = ['-alh', '/__w/_temp/']
+  try {
+    await execPodStep(
+      [args.entryPoint, ...args.entryPointArgs],
+      state.jobPod,
+      JOB_CONTAINER_NAME
+    )
+  } catch (err) {
+    throw new Error(`failed ls 2: ${err}`)
+  } finally {
+    fs.rmSync(runnerPath)
+  }
+
   args.entryPoint = 'sh'
   args.entryPointArgs = ['-ex', containerPath]
   try {
