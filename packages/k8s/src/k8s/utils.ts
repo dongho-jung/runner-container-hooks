@@ -23,7 +23,7 @@ export function containerVolumes(
   const mounts: k8s.V1VolumeMount[] = [
     {
       name: POD_VOLUME_NAME,
-      mountPath: '/__w'
+      mountPath: useKubeScheduler() ? '/home/runner/_work' : '/__w'
     }
   ]
 
@@ -151,7 +151,7 @@ exec ${environmentPrefix} ${entryPoint} ${
   fs.writeFileSync(entryPointPath, content)
   core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
-    containerPath: `/__w/_temp/${filename}`,
+    containerPath: `${useKubeScheduler() ? '/home/runner/_work' : '/__w'}/_temp/${filename}`,
     runnerPath: entryPointPath
   }
 }
