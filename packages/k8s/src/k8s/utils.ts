@@ -149,6 +149,7 @@ exec ${environmentPrefix} ${entryPoint} ${
   const filename = `${uuidv4()}.sh`
   const entryPointPath = `${process.env.RUNNER_TEMP}/${filename}`
   fs.writeFileSync(entryPointPath, content)
+  core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
     containerPath: `/__w/_temp/${filename}`,
     runnerPath: entryPointPath
