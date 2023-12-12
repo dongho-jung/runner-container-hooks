@@ -96,15 +96,25 @@ export async function createPod(
 
   if (!useKubeScheduler()) {
     appPod.spec.nodeName = await getCurrentNodeName()
-  }
 
-  const claimName = getVolumeClaimName()
-  appPod.spec.volumes = [
-    {
-      name: 'work',
-      persistentVolumeClaim: { claimName }
-    }
-  ]
+    const claimName = getVolumeClaimName()
+    appPod.spec.volumes = [
+      {
+        name: POD_VOLUME_NAME,
+        persistentVolumeClaim: { claimName }
+      }
+    ]
+  } else {
+    appPod.spec.volumes = [
+      {
+        name: POD_VOLUME_NAME,
+        hostPath: {
+          path: '/work',
+          type: 'DirectoryOrCreate'
+        }
+      }
+    ]
+  }
 
   if (registry) {
     const secret = await createDockerSecret(registry)
@@ -156,15 +166,25 @@ export async function createJob(
 
   if (!useKubeScheduler()) {
     job.spec.template.spec.nodeName = await getCurrentNodeName()
-  }
 
-  const claimName = getVolumeClaimName()
-  job.spec.template.spec.volumes = [
-    {
-      name: 'work',
-      persistentVolumeClaim: { claimName }
-    }
-  ]
+    const claimName = getVolumeClaimName()
+    job.spec.template.spec.volumes = [
+      {
+        name: POD_VOLUME_NAME,
+        persistentVolumeClaim: { claimName }
+      }
+    ]
+  } else {
+    job.spec.template.spec.volumes = [
+      {
+        name: POD_VOLUME_NAME,
+        hostPath: {
+          path: '/work',
+          type: 'DirectoryOrCreate'
+        }
+      }
+    ]
+  }
 
   if (extension) {
     if (extension.metadata) {
