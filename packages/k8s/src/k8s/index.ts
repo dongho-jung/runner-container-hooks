@@ -11,15 +11,13 @@ import {
   RunnerInstanceLabel
 } from '../hooks/constants'
 import {
-  PodPhase,
-  mergePodSpecWithOptions,
+  kc,
   mergeObjectMeta,
+  mergePodSpecWithOptions,
+  namespace,
+  PodPhase,
   useKubeScheduler
 } from './utils'
-
-const kc = new k8s.KubeConfig()
-
-kc.loadFromDefault()
 
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 const k8sBatchV1Api = kc.makeApiClient(k8s.BatchV1Api)
@@ -165,7 +163,7 @@ export async function createJob(
   job.spec.template.spec.restartPolicy = 'Never'
 
   core.debug(`useKubeScheduler=${useKubeScheduler()}`)
-  
+
   if (!useKubeScheduler()) {
     job.spec.template.spec.nodeName = await getCurrentNodeName()
 
@@ -555,23 +553,10 @@ async function getCurrentNodeName(): Promise<string> {
   return nodeName
 }
 
-export function namespace(): string {
-  if (process.env['ACTIONS_RUNNER_KUBERNETES_NAMESPACE']) {
-    return process.env['ACTIONS_RUNNER_KUBERNETES_NAMESPACE']
-  }
-
-  const context = kc.getContexts().find(ctx => ctx.namespace)
-  if (!context?.namespace) {
-    throw new Error(
-      'Failed to determine namespace, falling back to `default`. Namespace should be set in context, or in env variable "ACTIONS_RUNNER_KUBERNETES_NAMESPACE"'
-    )
-  }
-  return context.namespace
-}
-
 class BackOffManager {
   private backOffSeconds = 1
   totalTime = 0
+
   constructor(private throwAfterSeconds?: number) {
     if (!throwAfterSeconds || throwAfterSeconds < 0) {
       this.throwAfterSeconds = undefined

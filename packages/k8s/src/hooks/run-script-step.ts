@@ -30,7 +30,7 @@ export async function runScriptStep(
     [
       'sh',
       '-c',
-      `'ls -alh /home/runner/_work/_temp/ || exit 1'`
+      'ls -alh /home/runner/_work/_temp/ || true'
     ],
     state.jobPod,
     JOB_CONTAINER_NAME
@@ -41,23 +41,21 @@ export async function runScriptStep(
     [
       'sh',
       '-c',
-      `'ls -alh /__w/_temp/ || exit 1'`
+      'ls -alh /__w/_temp/ || true'
     ],
     state.jobPod,
     JOB_CONTAINER_NAME
   )
 
   args.entryPoint = 'sh'
-  args.entryPointArgs = ['-ex', containerPath]
+  args.entryPointArgs = ['-e', containerPath]
   try {
-    await new Promise(f => setTimeout(f, 60000))
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
       state.jobPod,
       JOB_CONTAINER_NAME
     )
   } catch (err) {
-    await new Promise(f => setTimeout(f, 60000))
     throw new Error(`failed to run script step: ${err}`)
   } finally {
     fs.rmSync(runnerPath)

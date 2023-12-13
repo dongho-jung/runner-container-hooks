@@ -6,14 +6,23 @@ import { Mount } from 'hooklib'
 import * as path from 'path'
 import { v1 as uuidv4 } from 'uuid'
 import { POD_VOLUME_NAME } from './index'
-import { JOB_CONTAINER_EXTENSION_NAME } from '../hooks/constants'
+import {
+  getJobPodName,
+  JOB_CONTAINER_NAME,
+  JOB_CONTAINER_EXTENSION_NAME
+} from '../hooks/constants'
 import * as shlex from 'shlex'
+import { PassThrough } from 'stream'
 
 export const DEFAULT_CONTAINER_ENTRY_POINT_ARGS = [`-f`, `/dev/null`]
 export const DEFAULT_CONTAINER_ENTRY_POINT = 'tail'
 
 export const ENV_HOOK_TEMPLATE_PATH = 'ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE'
 export const ENV_USE_KUBE_SCHEDULER = 'ACTIONS_RUNNER_USE_KUBE_SCHEDULER'
+
+export const kc = new k8s.KubeConfig()
+
+kc.loadFromDefault()
 
 export function containerVolumes(
   userMountVolumes: Mount[] = [],
@@ -148,10 +157,22 @@ exec ${environmentPrefix} ${entryPoint} ${
 `
   const filename = `${uuidv4()}.sh`
   const entryPointPath = `${process.env.RUNNER_TEMP}/${filename}`
-  fs.writeFileSync(entryPointPath, content)
+  if (!useKubeScheduler()) {
+    fs.writeFileSync(entryPointPath, content)
+  } else {
+    writeContentToPod(
+      getJobPodName(),
+      JOB_CONTAINER_NAME,
+      entryPointPath,
+      content
+    )
+      .then(() => core.debug('Content written successfully'))
+      .catch(err => core.error(`Error: ${err}`))
+  }
+
   core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
-    containerPath: (useKubeScheduler() ? process.env.RUNNER_TEMP : '/__w/temp') + `/${filename}`,
+    containerPath: `/__w/_temp/${filename}`,
     runnerPath: entryPointPath
   }
 }
@@ -287,4 +308,64 @@ function mergeLists<T>(base?: T[], from?: T[]): T[] {
 
 export function fixArgs(args: string[]): string[] {
   return shlex.split(args.join(' '))
+}
+
+async function writeContentToPod(
+  podName: string,
+  containerName: string,
+  filePath: string,
+  content: string
+): Promise<void> {
+  const stdout = new PassThrough()
+  const stderr = new PassThrough()
+  const exec = new k8s.Exec(kc)
+
+  core.debug(
+    `Writing content to pod ${podName} container ${containerName} file ${filePath}`
+  )
+
+  const escapedContent = content.replace(/"/g, '\\"')
+
+  const command = ['sh', '-c', `echo "${escapedContent}" > ${filePath}`]
+
+  await exec.exec(
+    namespace(),
+    podName,
+    containerName,
+    command,
+    stdout,
+    stderr,
+    null,
+    false
+  )
+
+  const error = await streamToString(stderr)
+  if (error) {
+    throw new Error(`Error writing file to pod: ${error}`)
+  }
+}
+
+async function streamToString(stream: PassThrough): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    stream.on('data', chunk =>
+      chunks.push(chunk instanceof Buffer ? chunk : Buffer.from(chunk))
+    )
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+    stream.on('error', err => reject(err))
+  })
+}
+
+export function namespace(): string {
+  if (process.env['ACTIONS_RUNNER_KUBERNETES_NAMESPACE']) {
+    return process.env['ACTIONS_RUNNER_KUBERNETES_NAMESPACE']
+  }
+
+  const context = kc.getContexts().find(ctx => ctx.namespace)
+  if (!context?.namespace) {
+    throw new Error(
+      'Failed to determine namespace, falling back to `default`. Namespace should be set in context, or in env variable "ACTIONS_RUNNER_KUBERNETES_NAMESPACE"'
+    )
+  }
+  return context.namespace
 }
