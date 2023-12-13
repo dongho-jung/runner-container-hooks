@@ -32,7 +32,7 @@ export function containerVolumes(
   const mounts: k8s.V1VolumeMount[] = [
     {
       name: POD_VOLUME_NAME,
-      mountPath: useKubeScheduler() ? '/home/runner/_work' : '/__w'
+      mountPath: '/__w'
     }
   ]
 

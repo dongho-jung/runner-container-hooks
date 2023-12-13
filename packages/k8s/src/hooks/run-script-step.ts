@@ -23,26 +23,24 @@ export async function runScriptStep(
 
   // print files under /home/runner/_work/_temp/
   const files = fs.readdirSync('/home/runner/_work/_temp/')
-  core.debug(`files under /home/runner/_work/_temp/: ${files}`)
+  core.debug(`[runner] files under /home/runner/_work/_temp/: ${files}`)
+
+  const files2 = fs.readdirSync('/__w')
+  core.debug(`[runner] files under /__w: ${files2}`)
+
+  const files3 = fs.readdirSync('/__w/_temp')
+  core.debug(`[runner] files under /__w/_temp: ${files3}`)
 
   core.debug(`ls 1 start`)
   await execPodStep(
-    [
-      'sh',
-      '-c',
-      'ls -alh /home/runner/_work/_temp/ || true'
-    ],
+    ['sh', '-c', 'ls -ahl /home/runner/_work/_temp/ || true'],
     state.jobPod,
     JOB_CONTAINER_NAME
   )
 
   core.debug(`ls 2 start`)
   await execPodStep(
-    [
-      'sh',
-      '-c',
-      'ls -alh /__w/_temp/ || true'
-    ],
+    ['sh', '-c', 'ls -ahl /__w/_temp/ || true'],
     state.jobPod,
     JOB_CONTAINER_NAME
   )
