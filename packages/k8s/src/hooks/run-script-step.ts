@@ -25,11 +25,21 @@ export async function runScriptStep(
   const files = fs.readdirSync('/home/runner/_work/_temp/')
   core.debug(`[runner] files under /home/runner/_work/_temp/: ${files}`)
 
-  const files2 = fs.readdirSync('/__w')
-  core.debug(`[runner] files under /__w: ${files2}`)
+  try {
+    const files2 = fs.readdirSync('/__w')
+    core.debug(`[runner] files under /__w: ${files2}`)
+  } catch (err) {
+    core.debug(`[runner] error: ${err}`)
+  }
 
-  const files3 = fs.readdirSync('/__w/_temp')
-  core.debug(`[runner] files under /__w/_temp: ${files3}`)
+  try {
+    const files3 = fs.readdirSync('/__w/_temp')
+    core.debug(`[runner] files under /__w/_temp: ${files3}`)
+  } catch (err) {
+    core.debug(`[runner] error: ${err}`)
+  }
+
+  await new Promise(f => setTimeout(f, 100000))
 
   core.debug(`ls 1 start`)
   await execPodStep(
