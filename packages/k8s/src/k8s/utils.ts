@@ -174,7 +174,7 @@ exec ${environmentPrefix} ${entryPoint} ${
   if (entryPointArgs && entryPointArgs.length > 1) {
     core.debug(`!!! [3]`)
     const entryPointArgsPath = entryPointArgs[1].replace(
-      process.env.RUNNER_TEMP as string,
+      '/__w/_temp/',
       '/home/runner/_work/_temp/'
     )
 
