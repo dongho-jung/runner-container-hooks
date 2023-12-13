@@ -57,7 +57,7 @@ export async function runScriptStep(
   )
 
   args.entryPoint = 'sh'
-  args.entryPointArgs = ['-e', containerPath]
+  args.entryPointArgs = ['-e', runnerPath]
   try {
     await execPodStep(
       [args.entryPoint, ...args.entryPointArgs],
