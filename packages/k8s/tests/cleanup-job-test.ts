@@ -1,8 +1,8 @@
 import * as k8s from '@kubernetes/client-node'
 import { cleanupJob, prepareJob } from '../src/hooks'
 import { RunnerInstanceLabel } from '../src/hooks/constants'
-import { namespace } from '../src/k8s'
 import { TestHelper } from './test-setup'
+import {namespace} from "../src/k8s/utils";
 
 let testHelper: TestHelper
 
