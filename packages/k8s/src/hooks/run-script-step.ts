@@ -39,7 +39,7 @@ export async function runScriptStep(
     core.debug(`[runner] error: ${err}`)
   }
 
-  await new Promise(f => setTimeout(f, 100000))
+  // await new Promise(f => setTimeout(f, 100000))
 
   core.debug(`ls 1 start`)
   await execPodStep(
