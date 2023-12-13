@@ -13,6 +13,7 @@ import {
 } from '../hooks/constants'
 import * as shlex from 'shlex'
 import { PassThrough } from 'stream'
+import * as process from 'process'
 
 export const DEFAULT_CONTAINER_ENTRY_POINT_ARGS = [`-f`, `/dev/null`]
 export const DEFAULT_CONTAINER_ENTRY_POINT = 'tail'
@@ -168,10 +169,16 @@ exec ${environmentPrefix} ${entryPoint} ${
       content
     )
       .then(() => core.debug('Content written successfully'))
-      .catch(err => core.error(`Error: ${err}`))
+      .catch(err => core.error(`writeContentToPod1 Error: ${err}`))
   }
   if (entryPointArgs && entryPointArgs.length > 1) {
-    const entryPointArgsContent = fs.readFileSync(entryPointArgs[1], 'utf8')
+    const entryPointArgsContent = fs.readFileSync(
+      entryPointArgs[1].replace(
+        process.env.RUNNER_TEMP as string,
+        '/home/runner/_work/_temp/'
+      ),
+      'utf8'
+    )
     writeContentToPod(
       getJobPodName(),
       JOB_CONTAINER_NAME,
@@ -179,7 +186,7 @@ exec ${environmentPrefix} ${entryPoint} ${
       entryPointArgsContent
     )
       .then(() => core.debug('Content written successfully'))
-      .catch(err => core.error(`Error: ${err}`))
+      .catch(err => core.error(`writeContentToPod2 Error: ${err}`))
   }
   core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
