@@ -7,7 +7,7 @@ import {
   runScriptStep
 } from './hooks'
 import { isAuthPermissionsOK, requiredPermissions } from './k8s'
-import {namespace} from "./k8s/utils";
+import { namespace } from './k8s/utils'
 
 async function run(): Promise<void> {
   try {
@@ -38,6 +38,7 @@ async function run(): Promise<void> {
         await cleanupJob()
         return process.exit(0)
       case Command.RunScriptStep:
+        core.debug(`!!! [0]`)
         await runScriptStep(args, state, null)
         return process.exit(0)
       case Command.RunContainerStep:

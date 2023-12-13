@@ -156,7 +156,7 @@ exec ${environmentPrefix} ${entryPoint} ${
     entryPointArgs?.length ? entryPointArgs.join(' ') : ''
   }
 `
-
+  core.debug(`!!! [2]`)
   const filename = `${uuidv4()}.sh`
   const entryPointPath = `${process.env.RUNNER_TEMP}/${filename}`
   if (!useKubeScheduler()) {
@@ -172,13 +172,15 @@ exec ${environmentPrefix} ${entryPoint} ${
       .catch(err => core.error(`writeContentToPod1 Error: ${err}`))
   }
   if (entryPointArgs && entryPointArgs.length > 1) {
-    const entryPointArgsContent = fs.readFileSync(
-      entryPointArgs[1].replace(
-        process.env.RUNNER_TEMP as string,
-        '/home/runner/_work/_temp/'
-      ),
-      'utf8'
+    core.debug(`!!! [3]`)
+    const entryPointArgsPath = entryPointArgs[1].replace(
+      process.env.RUNNER_TEMP as string,
+      '/home/runner/_work/_temp/'
     )
+
+    core.debug(`read entryPointArgsPath : ${entryPointArgsPath}`)
+
+    const entryPointArgsContent = fs.readFileSync(entryPointArgsPath, 'utf8')
     writeContentToPod(
       getJobPodName(),
       JOB_CONTAINER_NAME,
