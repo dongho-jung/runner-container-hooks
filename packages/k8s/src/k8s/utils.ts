@@ -155,6 +155,7 @@ exec ${environmentPrefix} ${entryPoint} ${
     entryPointArgs?.length ? entryPointArgs.join(' ') : ''
   }
 `
+
   const filename = `${uuidv4()}.sh`
   const entryPointPath = `${process.env.RUNNER_TEMP}/${filename}`
   if (!useKubeScheduler()) {
@@ -168,18 +169,18 @@ exec ${environmentPrefix} ${entryPoint} ${
     )
       .then(() => core.debug('Content written successfully'))
       .catch(err => core.error(`Error: ${err}`))
-
-    if (entryPointArgs && entryPointArgs.length > 1) {
-      const entryPointArgsContent = fs.readFileSync(entryPointArgs[1], 'utf8')
-      writeContentToPod(
-        getJobPodName(),
-        JOB_CONTAINER_NAME,
-        entryPointPath,
-        entryPointArgsContent
-      )
-        .then(() => core.debug('Content written successfully'))
-        .catch(err => core.error(`Error: ${err}`))
-    }
+  }
+  if (entryPointArgs && entryPointArgs.length > 1) {
+    const entryPointArgsContent = fs.readFileSync(entryPointArgs[1], 'utf8')
+    writeContentToPod(
+      getJobPodName(),
+      JOB_CONTAINER_NAME,
+      entryPointPath,
+      entryPointArgsContent
+    )
+      .then(() => core.debug('Content written successfully'))
+      .catch(err => core.error(`Error: ${err}`))
+  }
   core.debug(`Write entryPoint to ${entryPointPath}`)
   return {
     containerPath: `/__w/_temp/${filename}`,
